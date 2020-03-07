@@ -8,6 +8,7 @@ interface CreepMemory {
   building: boolean;
   upgrading: boolean;
   sourceId: string;
+  structures: StructureConstant[];
 }
 
 interface SourcesMap {

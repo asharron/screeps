@@ -45,6 +45,10 @@ export class Spawner {
     return bodyParts;
   };
 
+  public static createStructuresToControl = (cell: typeof Cell) => {
+    return cell.structures;
+  };
+
   public static deallocateSCreeps = () => {
     const deadCreeps = Object.keys(Memory.creeps).filter((creepName) => {
       return !Game.creeps[creepName];
@@ -57,7 +61,7 @@ export class Spawner {
 
   public static controlSpawn = () => {
     const numScreeps = Object.keys(Game.creeps).length;
-    const minScreeps = 5;
+    const minScreeps = 10;
     Spawner.deallocateSCreeps();
 
     if (numScreeps < minScreeps && Game.spawns.Spawn1.store[RESOURCE_ENERGY] >= 150) {
@@ -66,13 +70,16 @@ export class Spawner {
       console.log("Generating creep with role: ", role.roleName);
       const body = Spawner.createBodyFromRole(role);
       console.log("Body: ", body);
+      const structures = Spawner.createStructuresToControl(role);
+      console.log("Structures: ", structures);
       const creepMemory: CreepMemory = {
         building: false,
         role: role.roleName,
         room: '',
         sourceId: '',
+        structures,
         upgrading: false,
-        working: false
+        working: false,
       };
       const spawnOptions: SpawnOptions = {
         memory: creepMemory
