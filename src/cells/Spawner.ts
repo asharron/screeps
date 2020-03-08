@@ -63,8 +63,10 @@ export class Spawner {
     const numScreeps = Object.keys(Game.creeps).length;
     const minScreeps = 10;
     Spawner.deallocateSCreeps();
+    const canSpawn = !Game.spawns.Spawn1.spawnCreep([WORK, CARRY, MOVE],
+      'WorkerXX', { dryRun: true });
 
-    if (numScreeps < minScreeps && Game.spawns.Spawn1.store[RESOURCE_ENERGY] >= 150) {
+    if (canSpawn && numScreeps < minScreeps) {
       const name = Spawner.generateName();
       const role = Spawner.generateCellRole();
       console.log("Generating creep with role: ", role.roleName);
@@ -74,12 +76,13 @@ export class Spawner {
       console.log("Structures: ", structures);
       const creepMemory: CreepMemory = {
         building: false,
+        repairing: false,
         role: role.roleName,
         room: '',
         sourceId: '',
         structures,
         upgrading: false,
-        working: false,
+        working: false
       };
       const spawnOptions: SpawnOptions = {
         memory: creepMemory

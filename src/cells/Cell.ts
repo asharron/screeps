@@ -15,7 +15,6 @@ export abstract class Cell {
   };
 
   public static findNewTargetSource = (creep: Creep, sources: Source[]): Source => {
-    console.log("Sources map: ", JSON.stringify(Memory.sourcesMap));
     const targetSource = sources.reduce((prevSource: Source, nextSource: Source) => {
       const prevValue = Memory.sourcesMap[prevSource.id];
       const nextValue = Memory.sourcesMap[nextSource.id];
@@ -25,7 +24,6 @@ export abstract class Cell {
         return prevSource;
       }
     });
-    console.log("Found new target Source!: ", targetSource);
 
     return targetSource || sources[0];
   };
@@ -56,7 +54,6 @@ export abstract class Cell {
     if(creep.memory.sourceId) {
       const sourceValue = Memory.sourcesMap[creep.memory.sourceId];
       if(!(sourceValue <= 0)) {
-        console.log("Deallocating ", creep.memory.sourceId);
         Memory.sourcesMap[creep.memory.sourceId] -= 1;
       }
       creep.memory.sourceId = '';
@@ -69,23 +66,24 @@ export abstract class Cell {
     }
   };
 
+  // TODO: Simplify filtering logic
   public static findFirstAvailableStructure = (creep: Creep): Structure  => {
     const targets = creep.room.find(FIND_MY_STRUCTURES, {
       filter: (structure: Structure) => {
-        const creepSupportsStructure = creep.memory.structures.includes(structure.structureType);
-        return creepSupportsStructure;
+        return creep.memory.structures.includes(structure.structureType);
       }
     });
 
-    targets.filter((structure: Structure) => {
+    const allTargets =  targets.filter((structure: Structure) => {
       const struct = structure as AnyStoreStructure;
       if(struct.store) {
-        return struct.store.getFreeCapacity() > 0;
+        return struct.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
       } else {
         return true;
       }
     });
+    console.log("Targets!: ", allTargets);
 
-    return targets[0];
+    return allTargets[0];
   };
 }
