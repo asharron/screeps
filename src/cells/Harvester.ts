@@ -10,17 +10,8 @@ export class Harvester extends Cell {
       Harvester.harvest(creep);
     } else {
       Harvester.endHarvest(creep);
-      const targets = creep.room.find(FIND_STRUCTURES, {
-        filter: (structure) => {
-          return (structure.structureType === STRUCTURE_EXTENSION ||
-            structure.structureType === STRUCTURE_SPAWN ||
-            structure.structureType === STRUCTURE_TOWER) &&
-            structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-        }
-      });
-      if (targets.length > 0) {
-        Harvester.transferToTarget(creep, targets[0]);
-      }
+      const transferTarget = Harvester.findFirstAvailableStructure(creep);
+      Harvester.transferToTarget(creep, transferTarget);
     }
   }
 }

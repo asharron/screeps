@@ -68,4 +68,16 @@ export abstract class Cell {
       creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
     }
   };
+
+  public static findFirstAvailableStructure = (creep: Creep): Structure  => {
+    const targets = creep.room.find(FIND_MY_STRUCTURES, {
+      filter: (structure: AnyStoreStructure) => {
+        const hasFreeCapacity = structure.store && structure.store.getFreeCapacity() > 0;
+        const creepSupportsStructure = creep.memory.structures.includes(structure.structureType);
+        return creepSupportsStructure && hasFreeCapacity;
+      }
+    });
+
+    return targets[0];
+  };
 }
