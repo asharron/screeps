@@ -71,10 +71,18 @@ export abstract class Cell {
 
   public static findFirstAvailableStructure = (creep: Creep): Structure  => {
     const targets = creep.room.find(FIND_MY_STRUCTURES, {
-      filter: (structure: AnyStoreStructure) => {
-        const hasFreeCapacity = structure.store && structure.store.getFreeCapacity() > 0;
+      filter: (structure: Structure) => {
         const creepSupportsStructure = creep.memory.structures.includes(structure.structureType);
-        return creepSupportsStructure && hasFreeCapacity;
+        return creepSupportsStructure;
+      }
+    });
+
+    targets.filter((structure: Structure) => {
+      const struct = structure as AnyStoreStructure;
+      if(struct.store) {
+        return struct.store.getFreeCapacity() > 0;
+      } else {
+        return true;
       }
     });
 

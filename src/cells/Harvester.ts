@@ -11,6 +11,7 @@ export class Harvester extends Cell {
     } else {
       Harvester.endHarvest(creep);
       const transferTarget = Harvester.findFirstAvailableStructure(creep);
+      console.log("Transfer target!: ", transferTarget);
       Harvester.transferToTarget(creep, transferTarget);
     }
   }
