@@ -5,9 +5,9 @@ import {Upgrader} from "@cells/Upgrader";
 
 export class Spawner {
 
-  private static generateName = () => {
+  private static generateName = (cell: typeof Cell) => {
     Memory.populationId++;
-    return `creep${Memory.populationId}`;
+    return `${cell.roleName}#${Memory.populationId}`;
   };
 
   public static generateCellRole = (): typeof Cell => {
@@ -31,14 +31,28 @@ export class Spawner {
   public static createBodyFromRole = (role: typeof Cell): BodyPartConstant[] => {
     const bodyParts: BodyPartConstant[] = role.recipe;
     const energyLevel = Game.spawns.Spawn1.store[RESOURCE_ENERGY];
-    let totalCost = role.recipe.reduce((a: number, c: BodyPartConstant) => {
+    const spawnCost = role.recipe.reduce((a: number, c: BodyPartConstant) => {
       return a + BODYPART_COST[c];
     }, 0);
 
+    const extensions = Game.spawns.Spawn1.room.find(FIND_MY_STRUCTURES, {
+      filter: {
+        structureType: STRUCTURE_EXTENSION
+      }
+    });
+
+    const fullExtensions = extensions.filter((extension) => {
+      return extension.isActive();
+    });
+    let numExtensions = fullExtensions.length;
+
+    // TODO: Make readable
     role.recipe.forEach((bodyPart: BodyPartConstant) => {
-      if(energyLevel >= totalCost + BODYPART_COST[bodyPart]) {
-        totalCost += BODYPART_COST[bodyPart];
+      const partCost = BODYPART_COST[bodyPart];
+      const budget = numExtensions * 50;
+      if(budget > partCost) {
         bodyParts.push(bodyPart);
+        numExtensions = (budget - partCost) / 50;
       }
     });
 
@@ -67,8 +81,8 @@ export class Spawner {
       'WorkerXX', { dryRun: true });
 
     if (canSpawn && numScreeps < minScreeps) {
-      const name = Spawner.generateName();
       const role = Spawner.generateCellRole();
+      const name = Spawner.generateName(role);
       console.log("Generating creep with role: ", role.roleName);
       const body = Spawner.createBodyFromRole(role);
       console.log("Body: ", body);
@@ -87,7 +101,9 @@ export class Spawner {
       const spawnOptions: SpawnOptions = {
         memory: creepMemory
       };
-      Game.spawns.Spawn1.spawnCreep(body, name, spawnOptions);
+      if(Game.spawns.Spawn1.spawnCreep(body, name, spawnOptions) !== 0) {
+        console.log("Spawn Failed!!!");
+      }
     }
   };
 }
