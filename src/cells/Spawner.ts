@@ -29,11 +29,7 @@ export class Spawner {
   };
 
   public static createBodyFromRole = (role: typeof Cell): BodyPartConstant[] => {
-    const bodyParts: BodyPartConstant[] = role.recipe;
-    const energyLevel = Game.spawns.Spawn1.store[RESOURCE_ENERGY];
-    const spawnCost = role.recipe.reduce((a: number, c: BodyPartConstant) => {
-      return a + BODYPART_COST[c];
-    }, 0);
+    const bodyParts: BodyPartConstant[] = [...role.recipe];
 
     const extensions = Game.spawns.Spawn1.room.find(FIND_MY_STRUCTURES, {
       filter: {
@@ -41,18 +37,24 @@ export class Spawner {
       }
     });
 
-    const fullExtensions = extensions.filter((extension) => {
+    const activeExtensions = extensions.filter((extension) => {
       return extension.isActive();
     });
-    let numExtensions = fullExtensions.length;
+    let budget = activeExtensions.reduce((a: number, b) => {
+      if("store" in b) {
+        // @ts-ignore
+        return a + b.store.getUsedCapacity(RESOURCE_ENERGY);
+      } else {
+        return 0;
+      }
+    }, 0);
 
     // TODO: Make readable
     role.recipe.forEach((bodyPart: BodyPartConstant) => {
       const partCost = BODYPART_COST[bodyPart];
-      const budget = numExtensions * 50;
       if(budget > partCost) {
-        bodyParts.push(bodyPart);
-        numExtensions = (budget - partCost) / 50;
+        console.log("body parst", bodyParts);
+        budget = (budget - partCost);
       }
     });
 

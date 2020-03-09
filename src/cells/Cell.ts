@@ -82,7 +82,6 @@ export abstract class Cell {
         return true;
       }
     });
-    console.log("Targets!: ", allTargets);
 
     return allTargets[0];
   };
