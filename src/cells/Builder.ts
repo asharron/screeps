@@ -32,19 +32,52 @@ export class Builder extends Cell {
   };
 
   public static createConstructionSite = (creep: Creep) => {
-    creep.room.createConstructionSite(creep.pos.x + 1, creep.pos.y, STRUCTURE_EXTENSION);
+    const availableStructures = Builder.findStructuresToCreate(creep);
+    const structureToCreate = availableStructures[0];
+    // @ts-ignore
+    creep.room.createConstructionSite(creep.pos.x + 1, creep.pos.y, structureToCreate);
+  };
+
+  public static findStructuresToCreate = (creep: Creep) => {
+    const allowedStructures: StructureConstant[] = [STRUCTURE_EXTENSION, STRUCTURE_CONTAINER];
+    return Builder.filterForAvailableStructures(allowedStructures, creep);
+  };
+
+  public static filterForAvailableStructures = (structures: StructureConstant[], creep: Creep) => {
+    const extensions = creep.room.find(FIND_MY_STRUCTURES, {
+      filter: {
+        structureType: STRUCTURE_EXTENSION
+      }
+    });
+    const containers = creep.room.find(FIND_MY_STRUCTURES, {
+      filter: {
+        structureType: STRUCTURE_CONTAINER
+      }
+    });
+
+    const fil = structures.filter((type: StructureConstant) => {
+      if(!creep.room.controller) {
+        return;
+      }
+      switch (type) {
+        case STRUCTURE_EXTENSION:
+          const maxNumExtensions = CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][creep.room.controller.level];
+          return extensions.length < maxNumExtensions;
+        case STRUCTURE_CONTAINER:
+          const maxNumContainers = CONTROLLER_STRUCTURES[STRUCTURE_CONTAINER][creep.room.controller.level];
+          return containers.length < maxNumContainers;
+        default:
+          return false;
+      }
+    });
+    return fil;
   };
 
   public static canCreateConstructionSite = (creep: Creep) => {
     if(creep.room.controller) {
       const squareIsEmpty = creep.room.lookAt(creep.pos.x + 1, creep.pos.y).length === 1;
-      const maxNumExtensions = CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][creep.room.controller.level];
-      const extensions = Game.spawns.Spawn1.room.find(FIND_MY_STRUCTURES, {
-        filter: {
-          structureType: STRUCTURE_EXTENSION
-        }
-      });
-      return extensions.length < maxNumExtensions && squareIsEmpty;
+      const availableStructures = Builder.findStructuresToCreate(creep);
+      return squareIsEmpty && availableStructures.length > 0;
     }
 
     return false;
@@ -73,7 +106,6 @@ export class Builder extends Cell {
     if (creep.memory.building) {
       Builder.build(creep);
     } else if(creep.memory.repairing) {
-      console.log("Reparing!");
       Builder.repair(creep);
     } else {
       Builder.harvest(creep);
