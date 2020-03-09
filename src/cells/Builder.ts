@@ -54,19 +54,27 @@ export class Builder extends Cell {
     if(Builder.canCreateConstructionSite(creep)) {
       Builder.createConstructionSite(creep);
     }
-    if(creep.store.getFreeCapacity() === 0) {
+
+    const constructionAvailable = creep.room.find(FIND_CONSTRUCTION_SITES).length > 0;
+    if(creep.store.getFreeCapacity() === 0 && constructionAvailable) {
       creep.memory.building = true;
+    }
+
+    const repairingAvailable = Builder.findStructuresToRepair(creep).length > 0;
+    if(creep.store.getFreeCapacity() === 0 && repairingAvailable) {
+      creep.memory.repairing = true;
     }
 
     if(creep.store.getUsedCapacity() === 0) {
       creep.memory.building = false;
+      creep.memory.repairing = false;
     }
 
-    const constructionAvailable = creep.room.find(FIND_CONSTRUCTION_SITES).length > 0;
-    const shouldBuild = constructionAvailable && creep.memory.building;
-
-    if (shouldBuild) {
+    if (creep.memory.building) {
       Builder.build(creep);
+    } else if(creep.memory.repairing) {
+      console.log("Reparing!");
+      Builder.repair(creep);
     } else {
       Builder.harvest(creep);
     }
