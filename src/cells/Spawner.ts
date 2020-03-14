@@ -50,13 +50,15 @@ export class Spawner {
     }, 0);
 
     // TODO: Make readable
-    role.recipe.forEach((bodyPart: BodyPartConstant) => {
-      const partCost = BODYPART_COST[bodyPart];
-      if(budget > partCost) {
-        console.log("body parst", bodyParts);
-        budget = (budget - partCost);
-      }
-    });
+    while(budget >= 50) {
+      role.recipe.forEach((bodyPart: BodyPartConstant) => {
+        const partCost = BODYPART_COST[bodyPart];
+        if (budget >= partCost) {
+          budget = (budget - partCost);
+          bodyParts.push(bodyPart);
+        }
+      });
+    }
 
     return bodyParts;
   };

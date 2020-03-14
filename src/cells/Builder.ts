@@ -27,7 +27,7 @@ export class Builder extends Cell {
   public static repair = (creep: Creep) => {
     const repairTarget = Builder.findStructuresToRepair(creep)[0];
     if(creep.repair(repairTarget) === ERR_NOT_IN_RANGE) {
-      creep.moveTo(repairTarget);
+      creep.moveTo(repairTarget, {visualizePathStyle: {stroke: '#ffffff'}});
     }
   };
 
