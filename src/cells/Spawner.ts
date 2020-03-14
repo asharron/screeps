@@ -93,6 +93,7 @@ export class Spawner {
       const structures = Spawner.createStructuresToControl(role);
       console.log("Structures: ", structures);
       const creepMemory: CreepMemory = {
+        actionTarget: "",
         building: false,
         repairing: false,
         role: role.roleName,

@@ -10,6 +10,7 @@ interface CreepMemory {
   sourceId: string;
   structures: StructureConstant[];
   repairing: boolean;
+  actionTarget: string;
 }
 
 interface SourcesMap {

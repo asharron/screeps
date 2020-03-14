@@ -23,9 +23,25 @@ export class Builder extends Cell {
     return targets;
   };
 
+  /**
+   * Sees if the creep as a actionTarget for repairing and continues to repair that target if so
+   * Otherwise find and set a target for the creep to remember
+   * @param creep
+   */
+  public static findOrRememberRepairTarget(creep: Creep) {
+    const repairTargets = Builder.findStructuresToRepair(creep);
+
+    if(!creep.memory.actionTarget) {
+     creep.memory.actionTarget = repairTargets[0].id;
+     return repairTargets[0];
+    } else {
+      return repairTargets.find(t => t.id === creep.memory.actionTarget) || repairTargets[0];
+    }
+  }
 
   public static repair = (creep: Creep) => {
-    const repairTarget = Builder.findStructuresToRepair(creep)[0];
+    const repairTarget = Builder.findOrRememberRepairTarget(creep);
+
     if(creep.repair(repairTarget) === ERR_NOT_IN_RANGE) {
       creep.moveTo(repairTarget, {visualizePathStyle: {stroke: '#ffffff'}});
     }
@@ -94,13 +110,14 @@ export class Builder extends Cell {
     }
 
     const repairingAvailable = Builder.findStructuresToRepair(creep).length > 0;
-    if(creep.store.getFreeCapacity() === 0 && repairingAvailable) {
+    if(creep.store.getFreeCapacity() === 0 && repairingAvailable && !creep.memory.building) {
       creep.memory.repairing = true;
     }
 
     if(creep.store.getUsedCapacity() === 0) {
       creep.memory.building = false;
       creep.memory.repairing = false;
+      creep.memory.actionTarget = "";
     }
 
     if (creep.memory.building) {
