@@ -13,6 +13,9 @@ interface CreepMemory {
   actionTarget: string;
 }
 
+// Helper type for composing mixin functions
+type Constructor<T = {}> = new (...args: any[]) => T;
+
 interface SourcesMap {
   [sourceName: string]: number;
 }

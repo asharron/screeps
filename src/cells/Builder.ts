@@ -1,9 +1,8 @@
-import {Cell} from "@cells/Cell";
-import {createSecurePair} from "tls";
+import {Cell, CellRole} from "@cells/Cell";
 
 export class Builder extends Cell {
   public static recipe = [WORK, CARRY, MOVE];
-  public static roleName: string = 'builder';
+  public static roleName: CellRole = CellRole.Builder;
   public static structures = [];
 
   public static build = (creep: Creep) => {

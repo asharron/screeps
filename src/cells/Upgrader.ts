@@ -1,8 +1,8 @@
-import {Cell} from "@cells/Cell";
+import {Cell, CellRole} from "@cells/Cell";
 
 export class Upgrader extends Cell {
   public static recipe = [WORK, CARRY, MOVE];
-  public static roleName: string = 'upgrader';
+  public static roleName: CellRole = CellRole.Upgrader;
   public static structures = [];
 
   public static run = (creep: Creep) => {
@@ -16,7 +16,6 @@ export class Upgrader extends Cell {
     const doneHarvesting = !creep.memory.upgrading && creep.store.getFreeCapacity() === 0;
     if (doneHarvesting) {
       creep.memory.upgrading = true;
-      console.log("Upgrade!");
       creep.say('⚡ upgrade');
       Upgrader.endHarvest(creep);
     }

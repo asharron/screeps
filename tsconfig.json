@@ -14,7 +14,8 @@
     "allowUnreachableCode": false,
     "paths": {
       "@cells/*": ["cells/*"],
-      "@utils/*": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@ui/*": ["ui/*"]
     }
   },
   "exclude": [

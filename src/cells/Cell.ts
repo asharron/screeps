@@ -1,8 +1,13 @@
-import {createSecurePair} from "tls";
+export enum CellRole {
+  Harvester='harvester',
+  Builder='builder',
+  Upgrader='upgrader',
+  Default='default'
+}
 
 export abstract class Cell {
   public static recipe: BodyPartConstant[];
-  public static roleName: string = '';
+  public static roleName: CellRole = CellRole.Default;
   public static run: (creep: Creep) => void;
   public static structures: StructureConstant[];
 
