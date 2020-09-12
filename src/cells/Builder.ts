@@ -1,9 +1,15 @@
 import {Cell, CellRole} from "@cells/Cell";
+import {CellCore} from "@cells/CellCore";
 
-export class Builder extends Cell {
+export class Builder implements Cell {
   public static recipe = [WORK, CARRY, MOVE];
-  public static roleName: CellRole = CellRole.Builder;
+  public roleName: CellRole = CellRole.Builder;
   public static structures = [];
+  private readonly creep: Creep;
+
+  constructor(creep: Creep) {
+    this.creep = creep;
+  }
 
   public static build = (creep: Creep) => {
     const targets = creep.room.find(FIND_CONSTRUCTION_SITES);
@@ -70,7 +76,7 @@ export class Builder extends Cell {
       }
     });
 
-    const fil = structures.filter((type: StructureConstant) => {
+    return structures.filter((type: StructureConstant) => {
       if(!creep.room.controller) {
         return;
       }
@@ -85,7 +91,6 @@ export class Builder extends Cell {
           return false;
       }
     });
-    return fil;
   };
 
   public static canCreateConstructionSite = (creep: Creep) => {
@@ -98,33 +103,33 @@ export class Builder extends Cell {
     return false;
   };
 
-  public static run = (creep: Creep) => {
-    if(Builder.canCreateConstructionSite(creep)) {
-      Builder.createConstructionSite(creep);
+  public run = () => {
+    if(Builder.canCreateConstructionSite(this.creep)) {
+      Builder.createConstructionSite(this.creep);
     }
 
-    const constructionAvailable = creep.room.find(FIND_CONSTRUCTION_SITES).length > 0;
-    if(creep.store.getFreeCapacity() === 0 && constructionAvailable) {
-      creep.memory.building = true;
+    const constructionAvailable = this.creep.room.find(FIND_CONSTRUCTION_SITES).length > 0;
+    if(this.creep.store.getFreeCapacity() === 0 && constructionAvailable) {
+      this.creep.memory.building = true;
     }
 
-    const repairingAvailable = Builder.findStructuresToRepair(creep).length > 0;
-    if(creep.store.getFreeCapacity() === 0 && repairingAvailable && !creep.memory.building) {
-      creep.memory.repairing = true;
+    const repairingAvailable = Builder.findStructuresToRepair(this.creep).length > 0;
+    if(this.creep.store.getFreeCapacity() === 0 && repairingAvailable && !this.creep.memory.building) {
+      this.creep.memory.repairing = true;
     }
 
-    if(creep.store.getUsedCapacity() === 0) {
-      creep.memory.building = false;
-      creep.memory.repairing = false;
-      creep.memory.actionTarget = "";
+    if(this.creep.store.getUsedCapacity() === 0) {
+      this.creep.memory.building = false;
+      this.creep.memory.repairing = false;
+      this.creep.memory.actionTarget = "";
     }
 
-    if (creep.memory.building) {
-      Builder.build(creep);
-    } else if(creep.memory.repairing) {
-      Builder.repair(creep);
+    if (this.creep.memory.building) {
+      Builder.build(this.creep);
+    } else if(this.creep.memory.repairing) {
+      Builder.repair(this.creep);
     } else {
-      Builder.harvest(creep);
+      CellCore.harvest(this.creep);
     }
   }
 }

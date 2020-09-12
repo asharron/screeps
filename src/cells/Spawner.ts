@@ -1,7 +1,5 @@
-import {Builder} from "@cells/Builder";
-import {Cell} from "@cells/Cell";
-import {Harvester} from "@cells/Harvester";
-import {Upgrader} from "@cells/Upgrader";
+import {CellRole} from "@cells/Cell";
+import {CellFactory} from "../factories/CellFactory";
 import names from "../resources/names";
 
 export class Spawner {
@@ -9,16 +7,16 @@ export class Spawner {
   /**
    * Generates a name for a newly spawned cell.
    * Uses the role name and a random first name
-   * @param cell
+   * @param cellRole
    */
-  private static generateName = (cell: typeof Cell) => {
+  private static generateName = (cellRole: CellRole) => {
     let cellName = names.firstNames[Math.floor(Math.random() * names.firstNames.length)]
     let idx = 0;
-    while(!!Game.creeps[cellName]) {
+    while(!!Game.creeps[cellName + idx]) {
       idx++;
     }
     cellName += idx.toString();
-    return `${cell.roleName}#${cellName}`;
+    return `${cellRole}#${cellName}`;
   };
 
   private static incrementPopulationId = () => {
@@ -29,25 +27,25 @@ export class Spawner {
     Memory.role = (Memory.role + 1) % 3;
   }
 
-  public static generateCellRole = (): typeof Cell => {
+  public static generateCellRole = (): CellRole => {
     if (!Memory.role) {
       Memory.role = 0;
     }
 
     switch (Memory.role) {
       case 0:
-        return Harvester;
+        return CellRole.Harvester;
       case 1:
-        return Builder;
+        return CellRole.Builder;
       case 2:
-        return Upgrader;
+        return CellRole.Upgrader;
       default:
-        return Upgrader;
+        return CellRole.Upgrader;
     }
   };
 
-  public static createBodyFromRole = (role: typeof Cell): BodyPartConstant[] => {
-    const bodyParts: BodyPartConstant[] = [...role.recipe];
+  public static createBodyFromRole = (role: CellRole): BodyPartConstant[] => {
+    const bodyParts: BodyPartConstant[] = [...CellFactory.getCellRecipe(role)];
 
     // const extensions = Game.spawns.Spawn1.room.find(FIND_MY_STRUCTURES, {
     //   filter: {
@@ -81,8 +79,8 @@ export class Spawner {
     return bodyParts;
   };
 
-  public static createStructuresToControl = (cell: typeof Cell) => {
-    return cell.structures;
+  public static createStructuresToControl = (cellRole: CellRole) => {
+    return CellFactory.getCellStructures(cellRole);
   };
 
   /**
@@ -108,7 +106,7 @@ export class Spawner {
       name, { dryRun: true });
 
     if (canSpawn && numScreeps < minScreeps) {
-      console.log("Generating creep with role: ", role.roleName);
+      console.log("Generating creep with role: ", role);
       console.log("Body: ", body);
       const structures = Spawner.createStructuresToControl(role);
       console.log("Structures: ", structures);
@@ -116,7 +114,7 @@ export class Spawner {
         actionTarget: "",
         building: false,
         repairing: false,
-        role: role.roleName,
+        role,
         room: '',
         sourceId: '',
         structures,

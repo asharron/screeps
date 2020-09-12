@@ -1,32 +1,38 @@
-import {Cell, CellRole} from "@cells/Cell";
+import {Cell, CellRole} from '@cells/Cell';
+import {CellCore} from '@cells/CellCore';
 
-export class Upgrader extends Cell {
+export class Upgrader implements Cell {
   public static recipe = [WORK, CARRY, MOVE];
-  public static roleName: CellRole = CellRole.Upgrader;
+  public roleName: CellRole = CellRole.Upgrader;
   public static structures = [];
+  private readonly creep: Creep;
 
-  public static run = (creep: Creep) => {
-    const doneUpgrading = creep.memory.upgrading && creep.store[RESOURCE_ENERGY] === 0;
+  constructor(creep: Creep) {
+    this.creep = creep;
+  }
+
+  public run = () => {
+    const doneUpgrading = this.creep.memory.upgrading && this.creep.store[RESOURCE_ENERGY] === 0;
 
     if (doneUpgrading) {
-      creep.memory.upgrading = false;
-      creep.say('🔄 harvest');
+      this.creep.memory.upgrading = false;
+      this.creep.say('🔄 harvest');
     }
 
-    const doneHarvesting = !creep.memory.upgrading && creep.store.getFreeCapacity() === 0;
+    const doneHarvesting = !this.creep.memory.upgrading && this.creep.store.getFreeCapacity() === 0;
     if (doneHarvesting) {
-      creep.memory.upgrading = true;
-      creep.say('⚡ upgrade');
-      Upgrader.endHarvest(creep);
+      this.creep.memory.upgrading = true;
+      this.creep.say('⚡ upgrade');
+      CellCore.endHarvest(this.creep);
     }
 
-    const canUpgrade = creep.memory.upgrading && creep.room.controller;
-    if (canUpgrade && creep.room.controller) {
-      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
+    const canUpgrade = this.creep.memory.upgrading && this.creep.room.controller;
+    if (canUpgrade && this.creep.room.controller) {
+      if (this.creep.upgradeController(this.creep.room.controller) === ERR_NOT_IN_RANGE) {
+        this.creep.moveTo(this.creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
       }
     } else {
-      Upgrader.harvest(creep);
+      CellCore.harvest(this.creep);
     }
   }
 }

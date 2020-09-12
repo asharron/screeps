@@ -11,6 +11,8 @@ import {PopulationDash} from '@ui/PopulationDash';
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
   BuildUp.initVariables();
+
+  // TODO: Move into tower module
   const tower = Game.getObjectById('TOWER_ID') as StructureTower;
   if(tower) {
     const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
@@ -28,15 +30,16 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   for(const name in Game.creeps) {
     const creep = Game.creeps[name];
+    // TODO: Move logic into Cell Factory
     switch(creep.memory.role) {
       case CellRole.Harvester:
-        Harvester.run(creep);
+        new Harvester(creep).run();
         break;
       case CellRole.Builder:
-        Builder.run(creep);
+        new Builder(creep).run();
         break;
       case CellRole.Upgrader:
-        Upgrader.run(creep);
+        new Upgrader(creep).run();
         break;
       default:
         creep.suicide();
